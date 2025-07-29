@@ -1,13 +1,14 @@
 === WebP Image Converter ===
-Contributors: yourname
-Tags: webp, image, optimization, convert
-Requires at least: 5.0
-Tested up to: 6.2
-Stable tag: 1.0.0
+Contributors: orases
+Tags: webp, image, optimization, convert, media-library, bulk-processing
+Requires at least: 6.5
+Tested up to: 6.7
+Requires PHP: 8.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-A simple tool to convert and resize images to WebP format for WordPress optimization.
+Convert WordPress media library images to WebP format with bulk processing and optimization features.
 
 == Description ==
 
@@ -46,8 +47,9 @@ The plugin offers the following preset dimensions:
 = What server requirements are needed? =
 
 Your server should be running:
-* PHP 7.2 or higher
-* GD library with WebP support
+* WordPress 6.5 or higher
+* PHP 8.0 or higher
+* GD library with WebP support or ImageMagick
 
 == Screenshots ==
 
@@ -55,6 +57,12 @@ Your server should be running:
 2. Side-by-side comparison of original and converted images
 
 == Changelog ==
+
+= 1.1.0 =
+* Updated plugin header with Orases branding
+* Enhanced requirements (WordPress 6.5+, PHP 8.0+)
+* Improved plugin description and metadata
+* Added comprehensive development roadmap
 
 = 1.0.0 =
 * Initial release

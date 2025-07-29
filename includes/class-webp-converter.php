@@ -44,7 +44,7 @@ class WebP_Image_Converter {
         if (defined('WEBP_IMAGE_CONVERTER_VERSION')) {
             $this->version = WEBP_IMAGE_CONVERTER_VERSION;
         } else {
-            $this->version = '1.0.0';
+            $this->version = '1.1.0';
         }
         $this->plugin_name = 'webp-image-converter';
 
