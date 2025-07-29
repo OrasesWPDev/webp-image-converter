@@ -95,7 +95,8 @@ class WebP_Image_Converter_Admin {
             'webpConverterData',
             array(
                 'saveMediaNonce' => wp_create_nonce('webp_converter_save_media'),
-                'ajaxUrl' => admin_url('admin-ajax.php')
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'debugEnabled' => WebP_Image_Converter_Logger::get_js_debug_flag()
             )
         );
     }
@@ -122,8 +123,11 @@ class WebP_Image_Converter_Admin {
      * @since    1.0.0
      */
     public function display_plugin_admin_page() {
+        WebP_Image_Converter_Logger::info('Admin page loaded', ['request_method' => $_SERVER["REQUEST_METHOD"], 'has_image_upload' => isset($_FILES["image"])]);
+        
         // Process form submission if needed
         if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["image"])) {
+            WebP_Image_Converter_Logger::info('Processing image upload request');
             $this->processor->process_image();
         }
 
@@ -153,13 +157,17 @@ class WebP_Image_Converter_Admin {
      * @since    1.0.0
      */
     public function ajax_save_to_media_library() {
+        WebP_Image_Converter_Logger::info('AJAX save to media library request', ['post_data' => array_keys($_POST)]);
+        
         // Verify nonce
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'webp_converter_save_media')) {
+            WebP_Image_Converter_Logger::error('AJAX security verification failed', ['nonce_present' => isset($_POST['nonce'])]);
             wp_send_json_error(array('message' => __('Security verification failed.', 'webp-image-converter')));
         }
 
         // Check for required data
         if (!isset($_POST['image_data']) || empty($_POST['image_data'])) {
+            WebP_Image_Converter_Logger::error('No image data provided in AJAX request');
             wp_send_json_error(array('message' => __('No image data provided.', 'webp-image-converter')));
         }
 
@@ -182,8 +190,10 @@ class WebP_Image_Converter_Admin {
         $result = $this->processor->save_to_media_library($title);
 
         if (is_wp_error($result)) {
+            WebP_Image_Converter_Logger::error('AJAX save failed', ['error' => $result->get_error_message()]);
             wp_send_json_error(array('message' => $result->get_error_message()));
         } else {
+            WebP_Image_Converter_Logger::info('AJAX save successful', $result);
             wp_send_json_success(array(
                 'message' => __('Image saved to Media Library successfully!', 'webp-image-converter'),
                 'attachment' => $result

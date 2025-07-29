@@ -4,7 +4,7 @@ Tags: webp, image, optimization, convert, media-library, bulk-processing
 Requires at least: 6.5
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -57,6 +57,15 @@ Your server should be running:
 2. Side-by-side comparison of original and converted images
 
 == Changelog ==
+
+= 1.2.0 =
+* Added comprehensive debug logging system
+* Implemented WEBP_IMAGE_CONVERTER_DEBUG constant for debug control
+* Added WebP_Image_Converter_Logger class with static methods
+* Integrated logging throughout image processing and AJAX operations
+* Added JavaScript debug support with console logging
+* Created secured /logs/ directory with protection files
+* Added daily log files with multiple log levels (debug, info, warning, error)
 
 = 1.1.0 =
 * Updated plugin header with Orases branding

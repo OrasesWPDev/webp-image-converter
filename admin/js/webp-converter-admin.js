@@ -1,70 +1,93 @@
 (function($) {
     'use strict';
 
+    // Debug logging function
+    function debugLog(message, data) {
+        if (typeof webpConverterData !== 'undefined' && webpConverterData.debugEnabled) {
+            console.log('[WebP Converter Debug] ' + message, data || '');
+        }
+    }
+
     $(document).ready(function() {
+        debugLog('Admin script initialized', {
+            debugEnabled: typeof webpConverterData !== 'undefined' ? webpConverterData.debugEnabled : false,
+            ajaxUrl: typeof webpConverterData !== 'undefined' ? webpConverterData.ajaxUrl : 'undefined'
+        });
         // Update quality value display
         $('#quality').on('input', function() {
-            $('#qualityValue').text($(this).val() + '%');
+            var qualityValue = $(this).val() + '%';
+            $('#qualityValue').text(qualityValue);
+            debugLog('Quality value changed', { quality: qualityValue });
         });
 
         // Toggle custom dimensions
         $('#sizeOption').on('change', function() {
             const sizeOption = $(this).val();
             const customDiv = $('#customDimensions');
+            
+            debugLog('Size option changed', { sizeOption: sizeOption });
 
             if (sizeOption === 'custom') {
                 customDiv.show();
+                debugLog('Custom dimensions shown');
             } else {
                 customDiv.hide();
 
                 // Update hidden fields based on the selection
                 const widthField = $('#width');
                 const heightField = $('#height');
+                var dimensions = {};
 
                 switch(sizeOption) {
                     case 'header':
                         widthField.val(1500);
                         heightField.val(500);
+                        dimensions = { width: 1500, height: 500 };
                         break;
                     case 'thumbnail':
                         widthField.val(300);
                         heightField.val(200);
+                        dimensions = { width: 300, height: 200 };
                         break;
                     case 'featured':
                         widthField.val(1200);
                         heightField.val(630);
+                        dimensions = { width: 1200, height: 630 };
                         break;
                     case 'internal':
                         widthField.val(500);
                         heightField.val(500);
+                        dimensions = { width: 500, height: 500 };
                         break;
                     case 'gallery':
                         widthField.val(150);
                         heightField.val(150);
+                        dimensions = { width: 150, height: 150 };
                         break;
                 }
+                debugLog('Preset dimensions applied', dimensions);
             }
         });
 
         // Media Library Save functionality
         $('#saveToMediaBtn').on('click', function() {
-            console.log('Save button clicked');
+            debugLog('Save button clicked');
 
             const btn = $(this);
             const noticeArea = $('#mediaLibraryNotice');
 
-            console.log('Button and notice area:', btn.length, noticeArea.length);
+            debugLog('Button and notice area found', { buttonFound: btn.length > 0, noticeAreaFound: noticeArea.length > 0 });
 
             // Disable button and show loading state
             btn.prop('disabled', true).text('Saving...');
 
             // Get the base64 image data
             const imageData = $('img[alt="Converted Image"]').attr('src');
-            console.log('Image data found?', !!imageData);
+            debugLog('Image data retrieval', { imageDataFound: !!imageData, imageDataLength: imageData ? imageData.length : 0 });
 
             // Get original file name if available
             let originalFileName = $('#image').val().split('\\').pop();
-            console.log('Original filename:', originalFileName);
+            debugLog('Original filename extracted', { originalFileName: originalFileName });
 
             // Remove extension
             if (originalFileName) {
@@ -83,7 +106,7 @@
                     title: originalFileName
                 },
                 success: function(response) {
-                    console.log('AJAX response:', response);
+                    debugLog('AJAX response received', response);
                     if (response.success) {
                         // Show success message
                         noticeArea.removeClass('notice-error').addClass('notice-success')
@@ -97,7 +120,7 @@
                     }
                 },
                 error: function(xhr, status, error) {
-                    console.log('AJAX error:', status, error);
+                    debugLog('AJAX error occurred', { status: status, error: error, xhr: xhr });
                     // Show generic error message
                     noticeArea.removeClass('notice-success').addClass('notice-error')
                         .html('<p>Error: Could not connect to the server. ' + error + '</p>')
@@ -106,6 +129,7 @@
                 complete: function() {
                     // Reset button state
                     btn.prop('disabled', false).text('Save to Media Library');
+                    debugLog('AJAX request completed, button state reset');
                 }
             });
         });
