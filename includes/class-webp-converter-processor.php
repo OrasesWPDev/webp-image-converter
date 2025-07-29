@@ -59,14 +59,18 @@ class WebP_Image_Converter_Processor {
      * @return   boolean    True if successful, false otherwise
      */
     public function process_image() {
+        WebP_Image_Converter_Logger::info('Starting image processing', ['post_data' => array_keys($_POST), 'files_data' => array_keys($_FILES)]);
+        
         // Verify nonce for security
         if (!isset($_POST['webp_converter_nonce']) || !wp_verify_nonce($_POST['webp_converter_nonce'], 'webp_converter_action')) {
             $this->error_msg = "Security verification failed.";
+            WebP_Image_Converter_Logger::error('Security verification failed', ['nonce_present' => isset($_POST['webp_converter_nonce'])]);
             return false;
         }
 
         if (!isset($_FILES["image"]) || $_FILES["image"]["error"] != 0) {
             $this->error_msg = "Error uploading file. Code: " . (isset($_FILES["image"]) ? $_FILES["image"]["error"] : "No file uploaded");
+            WebP_Image_Converter_Logger::error('File upload error', ['error_code' => isset($_FILES["image"]) ? $_FILES["image"]["error"] : 'no_file']);
             return false;
         }
 
@@ -76,6 +80,7 @@ class WebP_Image_Converter_Processor {
         $fileInfo = getimagesize($_FILES["image"]["tmp_name"]);
         if (!$fileInfo || !in_array($fileInfo['mime'], $allowedTypes)) {
             $this->error_msg = "Uploaded file is not a valid image.";
+            WebP_Image_Converter_Logger::error('Invalid image file', ['file_info' => $fileInfo, 'allowed_types' => $allowedTypes]);
             return false;
         }
 
@@ -92,6 +97,8 @@ class WebP_Image_Converter_Processor {
             'aspectRatio' => $aspectRatio,
             'bits' => isset($fileInfo['bits']) ? $fileInfo['bits'] : 'Unknown'
         ];
+        
+        WebP_Image_Converter_Logger::info('Original image metadata', $this->original_meta);
 
         // Get dimensions from form
         $width = $_POST['width'];
@@ -129,6 +136,7 @@ class WebP_Image_Converter_Processor {
 
         if (!$source) {
             $this->error_msg = "Failed to create image resource.";
+            WebP_Image_Converter_Logger::error('Failed to create image resource', ['mime_type' => $fileInfo['mime']]);
             return false;
         }
 
@@ -151,7 +159,15 @@ class WebP_Image_Converter_Processor {
         $tmpWebpFile = $upload_dir['basedir'] . '/webp-converter-temp-' . uniqid() . '.webp';
 
         // Save as WebP
-        imagewebp($destination, $tmpWebpFile, $quality);
+        $webp_success = imagewebp($destination, $tmpWebpFile, $quality);
+        
+        if (!$webp_success) {
+            WebP_Image_Converter_Logger::error('Failed to create WebP image', ['quality' => $quality, 'temp_file' => $tmpWebpFile]);
+            $this->error_msg = "Failed to create WebP image.";
+            imagedestroy($source);
+            imagedestroy($destination);
+            return false;
+        }
 
         // Get converted image info
         $convertedSize = round(filesize($tmpWebpFile) / 1024, 2); // KB
@@ -170,6 +186,13 @@ class WebP_Image_Converter_Processor {
         // Save original image details for display
         $this->original_image = base64_encode(file_get_contents($_FILES["image"]["tmp_name"]));
         $this->converted_image = base64_encode(file_get_contents($tmpWebpFile));
+
+        WebP_Image_Converter_Logger::info('Image conversion completed successfully', [
+            'original_size' => $originalSize . ' KB',
+            'converted_size' => $convertedSize . ' KB',
+            'compression_ratio' => round((($originalSize - $convertedSize) / $originalSize) * 100, 2) . '%',
+            'quality' => $quality
+        ]);
 
         // Release memory
         imagedestroy($source);
@@ -236,8 +259,11 @@ class WebP_Image_Converter_Processor {
      * @return   array|WP_Error    Media library attachment data or error
      */
     public function save_to_media_library($title = '') {
+        WebP_Image_Converter_Logger::info('Starting save to media library', ['title' => $title]);
+        
         // Make sure we have a converted image
         if (!$this->converted_image) {
+            WebP_Image_Converter_Logger::error('No converted image available to save');
             return new WP_Error('no_image', __('No converted image available to save.', 'webp-image-converter'));
         }
 
@@ -256,6 +282,7 @@ class WebP_Image_Converter_Processor {
         $save_result = file_put_contents($filepath, $decoded_image);
 
         if (!$save_result) {
+            WebP_Image_Converter_Logger::error('Failed to save image to uploads directory', ['filepath' => $filepath]);
             return new WP_Error('save_error', __('Failed to save image to uploads directory.', 'webp-image-converter'));
         }
 
@@ -275,6 +302,7 @@ class WebP_Image_Converter_Processor {
         $attach_id = wp_insert_attachment($attachment, $filepath);
 
         if (is_wp_error($attach_id)) {
+            WebP_Image_Converter_Logger::error('Failed to insert attachment', ['error' => $attach_id->get_error_message()]);
             return $attach_id;
         }
 
@@ -283,12 +311,16 @@ class WebP_Image_Converter_Processor {
         $attach_data = wp_generate_attachment_metadata($attach_id, $filepath);
         wp_update_attachment_metadata($attach_id, $attach_data);
 
-        return array(
+        $result = array(
             'id'  => $attach_id,
             'url' => wp_get_attachment_url($attach_id),
             'title' => $title,
             'filename' => $filename
         );
+        
+        WebP_Image_Converter_Logger::info('Successfully saved image to media library', $result);
+        
+        return $result;
     }
 
     /**

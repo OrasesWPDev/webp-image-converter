@@ -44,7 +44,7 @@ class WebP_Image_Converter {
         if (defined('WEBP_IMAGE_CONVERTER_VERSION')) {
             $this->version = WEBP_IMAGE_CONVERTER_VERSION;
         } else {
-            $this->version = '1.1.0';
+            $this->version = '1.2.0';
         }
         $this->plugin_name = 'webp-image-converter';
 
@@ -74,6 +74,11 @@ class WebP_Image_Converter {
          * The class responsible for defining all actions that occur in the admin area.
          */
         require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-webp-converter-admin.php';
+
+        /**
+         * The class responsible for debug logging functionality.
+         */
+        require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-webp-converter-logger.php';
 
         $this->loader = new WebP_Image_Converter_Loader();
     }

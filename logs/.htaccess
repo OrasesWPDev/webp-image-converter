@@ -1,0 +1,7 @@
+# Deny direct access to log files
+Order deny,allow
+Deny from all
+<Files ~ "\.log$">
+    Order deny,allow
+    Deny from all
+</Files>
