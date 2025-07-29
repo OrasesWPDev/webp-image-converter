@@ -2,21 +2,24 @@
 /**
  * The plugin bootstrap file
  *
- * @link              https://yourwebsite.com
+ * @link              https://github.com/OrasesWPDev/webp-image-converter
  * @since             1.0.0
  * @package           WebP_Image_Converter
  *
  * @wordpress-plugin
  * Plugin Name:       WebP Image Converter
- * Plugin URI:        https://yourwebsite.com/webp-image-converter
- * Description:       A simple tool to convert and resize images to WebP format for WordPress optimization.
- * Version:           1.0.0
- * Author:            Your Name
- * Author URI:        https://yourwebsite.com
+ * Plugin URI:        https://github.com/OrasesWPDev/webp-image-converter
+ * Description:       Convert WordPress media library images to WebP format with bulk processing and optimization features.
+ * Version:           1.1.0
+ * Author:            Orases
+ * Author URI:        https://orases.com
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       webp-image-converter
  * Domain Path:       /languages
+ * Requires at least: 6.5
+ * Requires PHP:      8.0
+ * Update URI:        https://github.com/OrasesWPDev/webp-image-converter
  */
 
 // If this file is called directly, abort.
@@ -27,7 +30,7 @@ if (!defined('WPINC')) {
 /**
  * Current plugin version.
  */
-define('WEBP_IMAGE_CONVERTER_VERSION', '1.0.0');
+define('WEBP_IMAGE_CONVERTER_VERSION', '1.1.0');
 
 /**
  * The core plugin class
