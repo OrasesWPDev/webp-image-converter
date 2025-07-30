@@ -4,7 +4,7 @@ Tags: webp, image, optimization, convert, media-library, bulk-processing
 Requires at least: 6.5
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 1.3.2
+Stable tag: 1.3.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -57,6 +57,13 @@ Your server should be running:
 2. Side-by-side comparison of original and converted images
 
 == Changelog ==
+
+= 1.3.3 =
+* HOTFIX: Fixed Plugin Update Checker v5.6 API compatibility issues
+* Updated factory class from Puc_v4p13_Factory to YahnisElsts\PluginUpdateChecker\v5\PucFactory
+* Fixed check period parameter to use integer hours instead of deprecated setUpdateCheckThrottling method
+* Updated log_update_check method to handle PluginInfo object instead of array in v5.6
+* Resolved fatal error preventing plugin activation on WordPress sites
 
 = 1.3.2 =
 * Fixed GitHub Actions workflow to prevent unnecessary runs and duplicate releases
