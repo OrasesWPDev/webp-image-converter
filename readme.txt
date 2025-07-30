@@ -4,7 +4,7 @@ Tags: webp, image, optimization, convert, media-library, bulk-processing
 Requires at least: 6.5
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -57,6 +57,11 @@ Your server should be running:
 2. Side-by-side comparison of original and converted images
 
 == Changelog ==
+
+= 1.3.1 =
+* HOTFIX: Fixed incorrect vendor path for Plugin Update Checker library
+* Resolved fatal error preventing plugin activation
+* Corrected require_once path from vendor/plugin-update-checker/ to vendor/vendor/plugin-update-checker/
 
 = 1.3.0 =
 * Added GitHub-based auto-updater system using YahnisElsts Plugin Update Checker v5.6
