@@ -3,13 +3,12 @@ name: Auto Release on Version Change
 on:
   push:
     branches: [ main ]
-  pull_request:
-    types: [ closed ]
-    branches: [ main ]
+    paths:
+      - 'webp-image-converter.php'
+      - 'readme.txt'
 
 jobs:
   auto-release:
-    if: github.event_name == 'push' || (github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
     
     permissions:
@@ -30,21 +29,35 @@ jobs:
         echo "current_version=$VERSION" >> $GITHUB_OUTPUT
         echo "Current version detected: $VERSION"
     
-    - name: Check if version tag exists
-      id: check_tag
+    - name: Check if version changed and tag exists
+      id: check_version
       run: |
         VERSION=${{ steps.extract_version.outputs.current_version }}
+        
+        # Check if tag already exists
         if git rev-parse "v$VERSION" >/dev/null 2>&1; then
           echo "tag_exists=true" >> $GITHUB_OUTPUT
-          echo "Tag v$VERSION already exists"
+          echo "create_release=false" >> $GITHUB_OUTPUT
+          echo "⏭️  Tag v$VERSION already exists - skipping release"
+          exit 0
+        fi
+        
+        # Check if version actually changed from previous commit
+        PREVIOUS_VERSION=$(git show HEAD~1:webp-image-converter.php | awk '/\* Version:/ {print $3}' || echo "0.0.0")
+        
+        if [ "$VERSION" = "$PREVIOUS_VERSION" ]; then
+          echo "tag_exists=false" >> $GITHUB_OUTPUT
+          echo "create_release=false" >> $GITHUB_OUTPUT
+          echo "⏭️  Version unchanged ($VERSION) - skipping release"
         else
           echo "tag_exists=false" >> $GITHUB_OUTPUT
-          echo "Tag v$VERSION does not exist - will create release"
+          echo "create_release=true" >> $GITHUB_OUTPUT
+          echo "🚀 Version changed from $PREVIOUS_VERSION to $VERSION - creating release"
         fi
     
     - name: Extract changelog for current version
       id: changelog
-      if: steps.check_tag.outputs.tag_exists == 'false'
+      if: steps.check_version.outputs.create_release == 'true'
       run: |
         VERSION=${{ steps.extract_version.outputs.current_version }}
         # Extract changelog section for current version from readme.txt
@@ -57,7 +70,7 @@ jobs:
         echo "Extracted changelog for version $VERSION"
     
     - name: Create Git tag
-      if: steps.check_tag.outputs.tag_exists == 'false'
+      if: steps.check_version.outputs.create_release == 'true'
       run: |
         VERSION=${{ steps.extract_version.outputs.current_version }}
         git config --local user.email "action@github.com"
@@ -67,7 +80,7 @@ jobs:
         echo "Created and pushed tag v$VERSION"
     
     - name: Create plugin ZIP for distribution
-      if: steps.check_tag.outputs.tag_exists == 'false'
+      if: steps.check_version.outputs.create_release == 'true'
       run: |
         # Create a clean copy of the plugin for distribution
         mkdir -p dist
@@ -82,7 +95,7 @@ jobs:
         ls -la webp-image-converter-*.zip
     
     - name: Create GitHub Release
-      if: steps.check_tag.outputs.tag_exists == 'false'
+      if: steps.check_version.outputs.create_release == 'true'
       uses: softprops/action-gh-release@v1
       with:
         tag_name: v${{ steps.extract_version.outputs.current_version }}
@@ -97,13 +110,18 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Log release completion
-      if: steps.check_tag.outputs.tag_exists == 'false'
+      if: steps.check_version.outputs.create_release == 'true'
       run: |
         echo "✅ Successfully created release v${{ steps.extract_version.outputs.current_version }}"
         echo "📦 Distribution ZIP: webp-image-converter-${{ steps.extract_version.outputs.current_version }}.zip"
         echo "🚀 WordPress sites with auto-updater will detect this release within 1 minute"
     
     - name: Skip release creation
-      if: steps.check_tag.outputs.tag_exists == 'true'
+      if: steps.check_version.outputs.create_release == 'false'
       run: |
-        echo "⏭️  Skipped release creation - tag v${{ steps.extract_version.outputs.current_version }} already exists"
+        VERSION=${{ steps.extract_version.outputs.current_version }}
+        if [ "${{ steps.check_version.outputs.tag_exists }}" = "true" ]; then
+          echo "⏭️  Skipped release creation - tag v$VERSION already exists"
+        else
+          echo "⏭️  Skipped release creation - version unchanged (v$VERSION)"
+        fi

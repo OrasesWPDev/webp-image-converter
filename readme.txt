@@ -4,7 +4,7 @@ Tags: webp, image, optimization, convert, media-library, bulk-processing
 Requires at least: 6.5
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -57,6 +57,14 @@ Your server should be running:
 2. Side-by-side comparison of original and converted images
 
 == Changelog ==
+
+= 1.3.2 =
+* Fixed GitHub Actions workflow to prevent unnecessary runs and duplicate releases
+* Removed pull_request trigger to eliminate race conditions between PR and merge events
+* Added path filters to only run workflow when plugin files change
+* Added version change detection to skip releases when version is unchanged
+* Enhanced conditional logic and improved skip messaging
+* Reduced GitHub Actions usage and improved workflow reliability
 
 = 1.3.1 =
 * HOTFIX: Fixed incorrect vendor path for Plugin Update Checker library
