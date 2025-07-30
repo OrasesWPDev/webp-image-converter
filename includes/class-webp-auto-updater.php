@@ -48,7 +48,7 @@ class WebP_Auto_Updater {
      */
     private function init_update_checker() {
         // Load the Plugin Update Checker library
-        require_once plugin_dir_path(dirname(__FILE__)) . 'vendor/plugin-update-checker/plugin-update-checker.php';
+        require_once plugin_dir_path(dirname(__FILE__)) . 'vendor/vendor/plugin-update-checker/plugin-update-checker.php';
 
         // Create the update checker instance for GitHub releases
         $this->update_checker = Puc_v4p13_Factory::buildUpdateChecker(
