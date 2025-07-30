@@ -60,12 +60,13 @@ Your server should be running:
 
 = 1.3.0 =
 * Added GitHub-based auto-updater system using YahnisElsts Plugin Update Checker v5.6
-* Implemented WebP_Auto_Updater class for seamless updates
-* Configured 1-minute update check frequency for development/testing
+* Implemented WebP_Auto_Updater class for seamless updates from GitHub releases
+* Added GitHub Actions workflow for automatic release creation on version changes
+* Configured release-based updates instead of branch-based for better version control
 * Added GitHub token authentication support for private repositories
-* Integrated comprehensive logging for update operations and status
-* Added manual update check functionality
-* Set main branch as update source with automatic version detection
+* Integrated comprehensive logging for update operations and status tracking
+* Added manual update check functionality and automated plugin ZIP distribution
+* Configured 1-minute update check frequency for immediate update detection
 
 = 1.2.0 =
 * Added comprehensive debug logging system

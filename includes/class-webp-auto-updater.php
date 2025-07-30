@@ -36,7 +36,8 @@ class WebP_Auto_Updater {
         
         WebP_Image_Converter_Logger::info('Auto-updater initialized', [
             'plugin_file' => $this->plugin_file,
-            'github_repo' => 'OrasesWPDev/webp-image-converter'
+            'github_repo' => 'OrasesWPDev/webp-image-converter',
+            'update_method' => 'GitHub Releases (tag-based)'
         ]);
     }
 
@@ -49,15 +50,15 @@ class WebP_Auto_Updater {
         // Load the Plugin Update Checker library
         require_once plugin_dir_path(dirname(__FILE__)) . 'vendor/plugin-update-checker/plugin-update-checker.php';
 
-        // Create the update checker instance
+        // Create the update checker instance for GitHub releases
         $this->update_checker = Puc_v4p13_Factory::buildUpdateChecker(
             'https://github.com/OrasesWPDev/webp-image-converter/',
             $this->plugin_file,
             'webp-image-converter'
         );
 
-        // Set branch to main
-        $this->update_checker->setBranch('main');
+        // Use GitHub releases instead of branch for more reliable version detection
+        $this->update_checker->getVcsApi()->enableReleaseAssets();
 
         // Set update check frequency to 1 minute (for development/testing)
         // In production, this might be changed to a longer interval
@@ -71,9 +72,10 @@ class WebP_Auto_Updater {
 
         WebP_Image_Converter_Logger::debug('Plugin Update Checker configured', [
             'repository' => 'https://github.com/OrasesWPDev/webp-image-converter/',
-            'branch' => 'main',
+            'update_source' => 'GitHub Releases',
             'check_frequency' => '1 minute',
-            'slug' => 'webp-image-converter'
+            'slug' => 'webp-image-converter',
+            'release_assets' => 'enabled'
         ]);
     }
 
@@ -155,7 +157,8 @@ class WebP_Auto_Updater {
             WebP_Image_Converter_Logger::info('Update check completed', [
                 'current_version' => $current_version,
                 'latest_version' => $latest_version,
-                'update_available' => version_compare($current_version, $latest_version, '<')
+                'update_available' => version_compare($current_version, $latest_version, '<'),
+                'source' => 'GitHub Releases'
             ]);
         }
 
