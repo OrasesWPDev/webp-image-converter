@@ -36,6 +36,15 @@ class WebP_Image_Converter {
     protected $version;
 
     /**
+     * The auto-updater instance.
+     *
+     * @since    1.3.0
+     * @access   protected
+     * @var      WebP_Auto_Updater    $auto_updater    Handles GitHub-based auto-updates.
+     */
+    protected $auto_updater;
+
+    /**
      * Define the core functionality of the plugin.
      *
      * @since    1.0.0
@@ -44,12 +53,13 @@ class WebP_Image_Converter {
         if (defined('WEBP_IMAGE_CONVERTER_VERSION')) {
             $this->version = WEBP_IMAGE_CONVERTER_VERSION;
         } else {
-            $this->version = '1.2.0';
+            $this->version = '1.3.0';
         }
         $this->plugin_name = 'webp-image-converter';
 
         $this->load_dependencies();
         $this->define_admin_hooks();
+        $this->init_auto_updater();
     }
 
     /**
@@ -80,6 +90,11 @@ class WebP_Image_Converter {
          */
         require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-webp-converter-logger.php';
 
+        /**
+         * The class responsible for GitHub-based auto-updates.
+         */
+        require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-webp-auto-updater.php';
+
         $this->loader = new WebP_Image_Converter_Loader();
     }
 
@@ -96,6 +111,17 @@ class WebP_Image_Converter {
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
         $this->loader->add_action('admin_menu', $plugin_admin, 'add_plugin_admin_menu');
+    }
+
+    /**
+     * Initialize the auto-updater system
+     *
+     * @since    1.3.0
+     * @access   private
+     */
+    private function init_auto_updater() {
+        $plugin_file = plugin_dir_path(dirname(__FILE__)) . 'webp-image-converter.php';
+        $this->auto_updater = new WebP_Auto_Updater($plugin_file);
     }
 
     /**
@@ -136,5 +162,15 @@ class WebP_Image_Converter {
      */
     public function get_version() {
         return $this->version;
+    }
+
+    /**
+     * Retrieve the auto-updater instance.
+     *
+     * @since     1.3.0
+     * @return    WebP_Auto_Updater    The auto-updater instance.
+     */
+    public function get_auto_updater() {
+        return $this->auto_updater;
     }
 }
