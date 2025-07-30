@@ -4,7 +4,7 @@ Tags: webp, image, optimization, convert, media-library, bulk-processing
 Requires at least: 6.5
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -57,6 +57,16 @@ Your server should be running:
 2. Side-by-side comparison of original and converted images
 
 == Changelog ==
+
+= 1.3.0 =
+* Added GitHub-based auto-updater system using YahnisElsts Plugin Update Checker v5.6
+* Implemented WebP_Auto_Updater class for seamless updates from GitHub releases
+* Added GitHub Actions workflow for automatic release creation on version changes
+* Configured release-based updates instead of branch-based for better version control
+* Added GitHub token authentication support for private repositories
+* Integrated comprehensive logging for update operations and status tracking
+* Added manual update check functionality and automated plugin ZIP distribution
+* Configured 1-minute update check frequency for immediate update detection
 
 = 1.2.0 =
 * Added comprehensive debug logging system
