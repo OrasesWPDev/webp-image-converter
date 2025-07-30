@@ -10,7 +10,7 @@
  * Plugin Name:       WebP Image Converter
  * Plugin URI:        https://github.com/OrasesWPDev/webp-image-converter
  * Description:       Convert WordPress media library images to WebP format with bulk processing and optimization features.
- * Version:           1.3.1
+ * Version:           1.3.2
  * Author:            Orases
  * Author URI:        https://orases.com
  * License:           GPL-2.0+
@@ -30,7 +30,7 @@ if (!defined('WPINC')) {
 /**
  * Current plugin version.
  */
-define('WEBP_IMAGE_CONVERTER_VERSION', '1.3.1');
+define('WEBP_IMAGE_CONVERTER_VERSION', '1.3.2');
 
 /**
  * Debug flag - set to true to enable comprehensive logging
