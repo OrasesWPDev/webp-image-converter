@@ -20,7 +20,7 @@ class WebP_Auto_Updater {
      * Update checker instance
      *
      * @since 1.3.0
-     * @var Puc_v4p13_Plugin_UpdateChecker
+     * @var \YahnisElsts\PluginUpdateChecker\v5\Plugin\UpdateChecker
      */
     private $update_checker;
 
@@ -50,19 +50,18 @@ class WebP_Auto_Updater {
         // Load the Plugin Update Checker library
         require_once plugin_dir_path(dirname(__FILE__)) . 'vendor/vendor/plugin-update-checker/plugin-update-checker.php';
 
-        // Create the update checker instance for GitHub releases
-        $this->update_checker = Puc_v4p13_Factory::buildUpdateChecker(
+        // Create the update checker instance for GitHub releases using v5.6 API
+        // Check period must be an integer in hours - using 1 hour for development/testing
+        $checkPeriodHours = 1; // 1 hour for testing, change to 12 for production
+        $this->update_checker = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
             'https://github.com/OrasesWPDev/webp-image-converter/',
             $this->plugin_file,
-            'webp-image-converter'
+            'webp-image-converter',
+            $checkPeriodHours
         );
 
         // Use GitHub releases instead of branch for more reliable version detection
         $this->update_checker->getVcsApi()->enableReleaseAssets();
-
-        // Set update check frequency to 1 minute (for development/testing)
-        // In production, this might be changed to a longer interval
-        $this->update_checker->setUpdateCheckThrottling(1 * MINUTE_IN_SECONDS);
 
         // Add authentication if GitHub token is available
         $this->setup_authentication();
@@ -73,7 +72,7 @@ class WebP_Auto_Updater {
         WebP_Image_Converter_Logger::debug('Plugin Update Checker configured', [
             'repository' => 'https://github.com/OrasesWPDev/webp-image-converter/',
             'update_source' => 'GitHub Releases',
-            'check_frequency' => '1 minute',
+            'check_frequency' => $checkPeriodHours . ' hours',
             'slug' => 'webp-image-converter',
             'release_assets' => 'enabled'
         ]);
@@ -140,9 +139,9 @@ class WebP_Auto_Updater {
      * Log update check results
      *
      * @since 1.3.0
-     * @param array $update_info Update information
-     * @param array $result Result of the request
-     * @return array
+     * @param \YahnisElsts\PluginUpdateChecker\v5p6\Plugin\PluginInfo $update_info Update information object
+     * @param mixed $result Result of the request
+     * @return \YahnisElsts\PluginUpdateChecker\v5p6\Plugin\PluginInfo
      */
     public function log_update_check($update_info, $result) {
         if (is_wp_error($result)) {
@@ -152,12 +151,15 @@ class WebP_Auto_Updater {
             ]);
         } else {
             $current_version = defined('WEBP_IMAGE_CONVERTER_VERSION') ? WEBP_IMAGE_CONVERTER_VERSION : '1.0.0';
-            $latest_version = isset($update_info['version']) ? $update_info['version'] : 'unknown';
+            // In v5.6, update_info is a PluginInfo object, not an array
+            $latest_version = $update_info && is_object($update_info) && property_exists($update_info, 'version') 
+                ? $update_info->version 
+                : 'unknown';
             
             WebP_Image_Converter_Logger::info('Update check completed', [
                 'current_version' => $current_version,
                 'latest_version' => $latest_version,
-                'update_available' => version_compare($current_version, $latest_version, '<'),
+                'update_available' => $latest_version !== 'unknown' ? version_compare($current_version, $latest_version, '<') : false,
                 'source' => 'GitHub Releases'
             ]);
         }
@@ -206,7 +208,7 @@ class WebP_Auto_Updater {
      * Get current update checker instance
      *
      * @since 1.3.0
-     * @return Puc_v4p13_Plugin_UpdateChecker|null
+     * @return \YahnisElsts\PluginUpdateChecker\v5\Plugin\UpdateChecker|null
      */
     public function get_update_checker() {
         return $this->update_checker;
